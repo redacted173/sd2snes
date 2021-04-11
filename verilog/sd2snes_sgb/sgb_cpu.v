@@ -2969,14 +2969,15 @@ always @(posedge CLK) begin
         end
       end
       ST_MCT_VRAM: begin
-        if (~mct_wr_r) mct_mdr_r <= PPU_MCT_vram_active ? 0 : VRAM_data;
+        // SH writes 0 and checks for nonzero to see if the write failed.  Returning FF here allows correct detection of the fail
+        if (~mct_wr_r) mct_mdr_r <= PPU_MCT_vram_active ? 8'hFF : VRAM_data;
 
         // avoid false errors by only looking at EXE src
         if (~|mct_req_r & PPU_MCT_vram_active & mct_src_r) mct_vram_error_r <= mct_vram_error_r + 1;
         if (~|mct_req_r) mct_state_r <= ST_MCT_END;
       end
       ST_MCT_OAM: begin
-        if (~mct_wr_r) mct_mdr_r <= PPU_MCT_oam_active ? 0 : OAM_data;
+        if (~mct_wr_r) mct_mdr_r <= PPU_MCT_oam_active ? 8'hFF : OAM_data;
 
         // avoid false errors by only looking at EXE src
         if (~|mct_req_r & PPU_MCT_oam_active & mct_src_r) mct_oam_error_r <= mct_oam_error_r + 1;
